@@ -63,16 +63,16 @@ func (s *Server) Start() {
 
 			fmt.Println("Get conn remote addr = ", conn.RemoteAddr().String())
 
-			//3.2 设置服务器最大连接控制,如果超过最大连接，那么则关闭此新的连接
+			//设置服务器最大连接控制,如果超过最大连接，那么则关闭此新的连接
 			if s.ConnMgr.Len() >= ConfigObj.MaxConn {
 				conn.Close()
 				continue
 			}
 
-			//3.3 处理该新连接请求的 业务 方法， 此时应该有 handler 和 conn是绑定的
+			//处理该新连接请求的业务方法， handler和tcpConn绑定
 			dealConn := NewConntion(s, conn, cid, s.MsgHandle)
 			cid++
-			//3.4 启动当前链接的处理业务
+			// 启动当前链接的处理业务
 			go dealConn.Start()
 		}
 	}()

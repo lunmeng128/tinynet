@@ -135,15 +135,27 @@ func (c *Connection) SendMsg(msgType uint32, data []byte) error {
 	c.msgChan <- bt
 	return nil
 }
-func (c *Connection) SetProperty(key string, value interface{}) {
 
+func (c *Connection) SetProperty(key string, value interface{}) {
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+	c.property[key] = value
 }
+
 func (c *Connection) GetProperty(key string) (interface{}, error) {
-	return nil, nil
+	c.propertyLock.RLock()
+	defer c.propertyLock.RUnlock()
+	prop, ok := c.property[key]
+	if !ok {
+		return nil, errors.New(" property not found")
+	}
+	return prop, nil
 }
 
 func (c *Connection) DelProperty(key string) {
-
+	c.propertyLock.Lock()
+	defer c.propertyLock.Unlock()
+	delete(c.property, key)
 }
 
 func (c *Connection) GetConnID() uint32 {
